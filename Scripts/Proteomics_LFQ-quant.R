@@ -50,3 +50,82 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
   xlab("")
 
 ggsave(plot = Fig2B, width = 3, height = 3, dpi = 300, filename = "FIG2B.pdf")
+
+# Load packages for protein coverage map
+library("stringr")
+
+# Load Fragpipe combined_peptide output for MNV protein coverage map
+peptide <- read.table("./01_timsTOF-HT_transfection_1/Fragpipe/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR/combined_peptide.tsv",
+                      sep = "\t", header = TRUE, fill = TRUE, quote = "")
+
+# Subset MNV peptides
+peptide <- dplyr::filter(peptide, str_detect(peptide$Entry.Name, "_MNV") == TRUE)
+
+#get UniProt features for MNV proteins identified
+unique(peptide$Protein.ID) %>%
+  drawProteins::get_features() %>%
+  drawProteins::feature_to_dataframe() ->
+  MNV_UniProt_data
+
+#create canvas with protein length
+p <- ggplot() +
+  ylim(0.975, 1.3) +
+  xlim(0,max(MNV_UniProt_data$end))
+
+# add titles
+p <- p + labs(x = "Amino acid number",
+              y = "",)
+
+#edit nsp names
+POLG_ns <- MNV_UniProt_data[c(2,5:9),]
+POLG_ns[1,2] <- "NS1/2 \n(p48)"  
+POLG_ns[2,2] <- "NS3 \n(NTPase)"  
+POLG_ns[3,2] <- "NS4 \n(p22)"  
+POLG_ns[4,2] <- "NS5 \n(VPg)"  
+POLG_ns[5,2] <- "NS6 \n(3CL)"  
+POLG_ns[6,2] <- "NS7 \n(RdRP)"  
+
+#plot chain with rounded corners
+p <- p + statebins:::geom_rrect(data = POLG_ns[POLG_ns$type == "CHAIN",],
+                                mapping=aes(xmin=begin,
+                                            xmax=end,
+                                            ymin=1-0.018,
+                                            ymax=1+0.018),
+                                radius = grid::unit(2, "pt"),
+                                colour = "grey1", fill = "white")
+
+#plot peptide coverage
+p <- p + statebins:::geom_rrect(data = peptide,
+                                mapping=aes(xmin=Start,
+                                            xmax=End,
+                                            ymin=1-0.0178,
+                                            ymax=1+0.0178),
+                                #fill = "navy"), 
+                                radius = grid::unit(2, "pt"),
+                                alpha = 0.5)
+
+#plot nsp names
+p <- p + geom_label(data = POLG_ns[POLG_ns$type == "CHAIN",],
+                    aes(x = begin + (end-begin)/2,
+                        y = 1,
+                        label = description),
+                    fontface = "bold",
+                    size = 3.8,
+                    fill = NA,
+                    label.size = NA)
+
+
+
+# white background and remove y-axis
+p <- p + theme_bw() +    # white background and text size
+  theme() +
+  #labs(fill="Domains") +
+  theme(panel.grid.minor=element_blank(), 
+        panel.grid.major=element_blank()) +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) +
+  geom_rect(fill = NA) +
+  theme(panel.border = element_blank(),axis.line.x = element_line(linetype = "solid", colour = "black")) +
+  scale_x_continuous(breaks = seq(0,max(MNV_UniProt_data$end),150),limits = c(0,max(MNV_UniProt_data$end)))
+
+ggsave(plot = p, dpi = 300, filename = "ORF1_cov.pdf")
