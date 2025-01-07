@@ -35,16 +35,12 @@ int_long <- cbind(int_long,conditions)
 int_long$conditions <- factor(int_long$conditions, levels = unique(conditions)) #converts the conditions column to a factor and specifies the desired order of the levels
 
 Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
-  #geom_boxplot() +
   geom_boxplot(outlier.size = 0.4, linewidth = 0.2) +
-  #geom_boxplot(coef=NULL) + 
   stat_boxplot(geom = "errorbar", width = 0.3, coef = NULL, alpha = 0.8, linewidth = 0.2) +
   scale_fill_viridis(discrete = TRUE, alpha=0.6) +
   scale_y_continuous(limits = c(16,22)) +
-  #geom_jitter(color="black", size=0.6, alpha=0.9, width = 0, shape = 1, stroke = 0.2) +
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
   theme_classic() +
-  #theme(aspect.ratio = 1) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8, color = "black"),
         axis.title.y = element_text(size = 9, color = "black"),
         legend.position="none",
