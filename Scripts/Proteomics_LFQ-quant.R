@@ -42,7 +42,7 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
   scale_y_continuous(limits = c(16,22)) +
   scale_x_discrete(labels = c("Mock",rep(c("WT","YGSN"), 6))) +
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
-  theme_classic() +
+  theme_classic(base_family = "Arial") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8, color = "black"),
         axis.title.y = element_text(size = 9, color = "black"),
         legend.position="none",
@@ -53,7 +53,7 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
 
 Fig2B
 
-ggsave(plot = Fig2B, width = 3, height = 3, dpi = 300, filename = "FIG2B.pdf")
+ggsave(plot = Fig2B, width = 3, height = 3, dpi = 300, filename = "FIG2B_arial.png")
 
 # Load packages for protein coverage map
 library("stringr")
@@ -133,3 +133,7 @@ p <- p + theme_bw() +    # white background and text size
   scale_x_continuous(breaks = seq(0,max(MNV_UniProt_data$end),150),limits = c(0,max(MNV_UniProt_data$end)))
 
 ggsave(plot = p, dpi = 300, filename = "ORF1_cov.pdf")
+
+
+# Save environment
+save.image(paste0(Sys.Date(),"_BoxPlot_proteinCoverageMap.RData"))
