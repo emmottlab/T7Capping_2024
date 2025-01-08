@@ -28,10 +28,11 @@ int <- dplyr::mutate(int,across(where(is.numeric),log2))
 # Plot box-plot
 conditions <- c(rep(paste0("Cond_0", 2:9), each = 5),rep(paste0("Cond_", 10:13), each = 5),rep("Mock", each = 5))
 conditions <- conditions[c(61:65,1:60)]
+group_names <- c(rep("Mock",5),rep(c(rep("WT", each = 5), rep("YGSN", each = 5)), 6))
 
 int_long <- melt(int)
 int_long <- int_long[c(61:65,1:60),]
-int_long <- cbind(int_long,conditions)
+int_long <- cbind(int_long,conditions,group_names)
 int_long$conditions <- factor(int_long$conditions, levels = unique(conditions)) #converts the conditions column to a factor and specifies the desired order of the levels
 
 Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
@@ -39,6 +40,7 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
   stat_boxplot(geom = "errorbar", width = 0.3, coef = NULL, alpha = 0.8, linewidth = 0.2) +
   scale_fill_viridis(discrete = TRUE, alpha=0.6) +
   scale_y_continuous(limits = c(16,22)) +
+  scale_x_discrete(labels = c("Mock",rep(c("WT","YGSN"), 6))) +
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8, color = "black"),
@@ -48,6 +50,8 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
         axis.line = element_line(linewidth =0.2)) +
   labs(y = "Log2 Intensity") +
   xlab("")
+
+Fig2B
 
 ggsave(plot = Fig2B, width = 3, height = 3, dpi = 300, filename = "FIG2B.pdf")
 
