@@ -38,22 +38,23 @@ int_long$conditions <- factor(int_long$conditions, levels = unique(conditions)) 
 Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
   geom_boxplot(outlier.size = 0.4, linewidth = 0.2) +
   stat_boxplot(geom = "errorbar", width = 0.3, coef = NULL, alpha = 0.8, linewidth = 0.2) +
-  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  scale_fill_manual(values = rep(c("#666699"),13)) +
+  #scale_fill_viridis(discrete = TRUE, alpha=0.6) +
   scale_y_continuous(limits = c(16,22)) +
   scale_x_discrete(labels = c("Mock",rep(c("WT","YGSN"), 6))) +
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
   theme_classic(base_family = "Arial") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8, color = "black"),
-        axis.title.y = element_text(size = 9, color = "black"),
+  theme(axis.text.x = element_text(angle = 0, hjust = NULL, size = 5, color = "black"),
+        axis.title.y = element_text(size = 8, color = "black"),
         legend.position="none",
         axis.text.y = element_text(color = "black", size = 6),
         axis.line = element_line(linewidth =0.2)) +
-  labs(y = "Log2 Intensity") +
+  labs(y = expression(Log[2] ~ Intensity)) +
   xlab("")
 
 Fig2B
 
-ggsave(plot = Fig2B, width = 3, height = 3, dpi = 300, filename = "FIG2B_arial.png")
+ggsave(plot = Fig2B, width = 3, height = 2.5, dpi = 300, filename = "FIG2B.png")
 
 # Load packages for protein coverage map
 library("stringr")
@@ -104,7 +105,6 @@ p <- p + statebins:::geom_rrect(data = peptide,
                                             xmax=End,
                                             ymin=1-0.0178,
                                             ymax=1+0.0178),
-                                #fill = "navy"), 
                                 radius = grid::unit(2, "pt"),
                                 alpha = 0.5)
 
@@ -132,8 +132,11 @@ p <- p + theme_bw() +    # white background and text size
   theme(panel.border = element_blank(),axis.line.x = element_line(linetype = "solid", colour = "black")) +
   scale_x_continuous(breaks = seq(0,max(MNV_UniProt_data$end),150),limits = c(0,max(MNV_UniProt_data$end)))
 
-ggsave(plot = p, dpi = 300, filename = "ORF1_cov.pdf")
+p
+
+ggsave(plot = p, dpi = 300, filename = "ORF1_cov.png")
 
 
 # Save environment
-save.image(paste0(Sys.Date(),"_BoxPlot_proteinCoverageMap.RData"))
+save.image(paste0(Sys.Date(),"_BoxPlot_proteinCoverageMap_BV2.RData"))
+
