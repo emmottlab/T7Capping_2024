@@ -10,6 +10,7 @@ library("viridis")
 # Set working directory
 setwd("Y:/Leandro/2024/Projects/18_T7capping")
 
+# Figures for BV2 transfection
 # Load Fragpipe output files
 data <- read.table("./01_timsTOF-HT_transfection_1/Fragpipe/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR/combined_protein.tsv",
                    sep = "\t", header = TRUE)
@@ -135,6 +136,118 @@ p <- p + theme_bw() +    # white background and text size
 p
 
 ggsave(plot = p, dpi = 300, filename = "ORF1_cov.png")
+
+
+# Figures for BSRT7 transfection
+# Load Fragpipe output files
+data2 <- read.table("./Deposit/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR_BSRT7/combined_protein.tsv",
+                   sep = "\t", header = TRUE)
+
+# Subset MNV proteins
+MNV2 <- dplyr::filter(data2, Organism == "Norovirus (isolate Mouse/")
+colnames(MNV2)
+
+# Subset and log2 transform quantitative data
+quant_columns2 <- colnames(MNV2[,51:62])
+
+int2 <- MNV2[,c("Description",quant_columns2)]
+int2[,quant_columns2][int[,quant_columns2] == 0] <- NA
+int2 <- dplyr::mutate(int2,across(where(is.numeric),log2))
+int2$Description[3] <- "Genome polyprotein (NS4)"
+
+# Plot box-plot
+conditions2 <- gsub("_\\d+\\.Intensity","",quant_columns2)
+
+int_long2 <- melt(int2)
+int_long2$conditions <- gsub("_\\d+\\.Intensity","",int_long2$variable)
+
+int_long2$conditions <- factor(int_long2$conditions, levels = unique(conditions2)) #converts the conditions column to a factor and specifies the desired order of the levels
+
+# plot polyprotein first
+int_long2_pp <- int_long2 %>% filter(grepl("Genome polyprotein", Description, fixed = TRUE))
+int_long2_pp <- int_long2_pp %>% filter(!grepl("NS4", Description, fixed = TRUE))
+
+
+Fig3B <- ggplot(int_long2_pp, aes(x = conditions2, y = value, fill = Description)) +
+  geom_boxplot(outlier.size = 0.4, linewidth = 0.2) +
+  scale_fill_manual(values = rep(c("#666699"),13)) +
+  scale_y_continuous(limits = c(15,27)) +
+  scale_x_discrete(labels = c(gsub("BS_|CD_", "",unique(int_long2_pp$conditions)))) +
+  geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
+  theme_classic(base_family = "Arial") +
+  theme(axis.text.x = element_text(angle = 0, hjust = NULL, size = 6.5, color = "black"),
+        axis.title.y = element_text(size = 8, color = "black"),
+        legend.position="none",
+        axis.text.y = element_text(color = "black", size = 6),
+        axis.line = element_line(linewidth =0.2)) +
+  labs(y = expression(Log[2] ~ Intensity)) +
+  xlab("")
+
+Fig3B
+
+ggsave(plot = Fig3B, width = 3, height = 2.5, dpi = 300, filename = "FIG3B.png")
+
+# coverage map Figure 3
+# Load Fragpipe combined_peptide output for MNV protein coverage map
+peptide2 <- read.table("./Deposit/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR_BSRT7/combined_peptide.tsv",
+                      sep = "\t", header = TRUE, fill = TRUE, quote = "")
+
+# Subset MNV peptides
+peptide2 <- dplyr::filter(peptide2, str_detect(peptide2$Entry.Name, "POLG") == TRUE)
+
+#create canvas with protein length
+p2 <- ggplot() +
+  ylim(0.975, 1.3) +
+  xlim(0,max(MNV_UniProt_data$end))
+
+# add titles
+p2 <- p2 + labs(x = "Amino acid number",
+              y = "",)
+
+#plot chain with rounded corners
+p2 <- p2 + statebins:::geom_rrect(data = POLG_ns[POLG_ns$type == "CHAIN",],
+                                mapping=aes(xmin=begin,
+                                            xmax=end,
+                                            ymin=1-0.018,
+                                            ymax=1+0.018),
+                                radius = grid::unit(2, "pt"),
+                                colour = "grey1", fill = "white")
+
+#plot peptide coverage
+p2 <- p2 + statebins:::geom_rrect(data = peptide2,
+                                mapping=aes(xmin=Start,
+                                            xmax=End,
+                                            ymin=1-0.0178,
+                                            ymax=1+0.0178),
+                                radius = grid::unit(2, "pt"),
+                                alpha = 0.5)
+
+#plot nsp names
+p2 <- p2 + geom_label(data = POLG_ns[POLG_ns$type == "CHAIN",],
+                    aes(x = begin + (end-begin)/2,
+                        y = 1,
+                        label = description),
+                    fontface = "bold",
+                    size = 3.8,
+                    fill = NA,
+                    label.size = NA)
+
+
+
+# white background and remove y-axis
+p2 <- p2 + theme_bw() +    # white background and text size
+  theme() +
+  #labs(fill="Domains") +
+  theme(panel.grid.minor=element_blank(), 
+        panel.grid.major=element_blank()) +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) +
+  geom_rect(fill = NA) +
+  theme(panel.border = element_blank(),axis.line.x = element_line(linetype = "solid", colour = "black")) +
+  scale_x_continuous(breaks = seq(0,max(MNV_UniProt_data$end),150),limits = c(0,max(MNV_UniProt_data$end)))
+
+ggsave(plot = p2, dpi = 300, filename = "ORF1_cov2.png")
+
 
 
 # Save environment
