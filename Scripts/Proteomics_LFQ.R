@@ -249,7 +249,6 @@ p2 <- p2 + theme_bw() +    # white background and text size
 ggsave(plot = p2, dpi = 300, filename = "ORF1_cov2.png")
 
 
-
 # Save environment
-save.image(paste0(Sys.Date(),"_BoxPlot_proteinCoverageMap_BV2.RData"))
+save.image(paste0(Sys.Date(),"_BoxPlot_proteinCoverageMap.RData"))
 
