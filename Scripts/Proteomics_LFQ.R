@@ -46,11 +46,11 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
   theme_classic(base_family = "Arial") +
   theme(axis.text.x = element_text(angle = 0, hjust = NULL, size = 5, color = "black"),
-        axis.title.y = element_text(size = 8, color = "black"),
+        axis.title.y = element_text(size = 7, color = "black"),
         legend.position="none",
         axis.text.y = element_text(color = "black", size = 6),
         axis.line = element_line(linewidth =0.2)) +
-  labs(y = expression(Log[2] ~ Intensity)) +
+  labs(y = expression("Viral polyprotein abundance (Log"[2] ~ "Intensity)"))  +
   xlab("")
 
 Fig2B
@@ -151,7 +151,7 @@ colnames(MNV2)
 quant_columns2 <- colnames(MNV2[,51:62])
 
 int2 <- MNV2[,c("Description",quant_columns2)]
-int2[,quant_columns2][int[,quant_columns2] == 0] <- NA
+int2[,quant_columns2][int2[,quant_columns2] == 0] <- NA
 int2 <- dplyr::mutate(int2,across(where(is.numeric),log2))
 int2$Description[3] <- "Genome polyprotein (NS4)"
 
@@ -167,7 +167,6 @@ int_long2$conditions <- factor(int_long2$conditions, levels = unique(conditions2
 int_long2_pp <- int_long2 %>% filter(grepl("Genome polyprotein", Description, fixed = TRUE))
 int_long2_pp <- int_long2_pp %>% filter(!grepl("NS4", Description, fixed = TRUE))
 
-
 Fig3B <- ggplot(int_long2_pp, aes(x = conditions2, y = value, fill = Description)) +
   geom_boxplot(outlier.size = 0.4, linewidth = 0.2) +
   scale_fill_manual(values = rep(c("#666699"),13)) +
@@ -176,11 +175,11 @@ Fig3B <- ggplot(int_long2_pp, aes(x = conditions2, y = value, fill = Description
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
   theme_classic(base_family = "Arial") +
   theme(axis.text.x = element_text(angle = 0, hjust = NULL, size = 6.5, color = "black"),
-        axis.title.y = element_text(size = 8, color = "black"),
+        axis.title.y = element_text(size = 7, color = "black"),
         legend.position="none",
         axis.text.y = element_text(color = "black", size = 6),
         axis.line = element_line(linewidth =0.2)) +
-  labs(y = expression(Log[2] ~ Intensity)) +
+  labs(y = expression("Viral polyprotein abundance (Log"[2] ~ "Intensity)"))  +
   xlab("")
 
 Fig3B
