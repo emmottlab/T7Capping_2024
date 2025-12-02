@@ -6,19 +6,21 @@ library("ggplot2")
 library("reshape")
 library("hrbrthemes")
 library("viridis")
+library("stringr")
+library("drawProteins")
 
 # Set working directory
 setwd("Y:/Leandro/2024/Projects/18_T7capping")
 
-# Figures for BV2 transfection
+# Figure 2
 # Load Fragpipe output files
 data <- read.table("./01_timsTOF-HT_transfection_1/Fragpipe/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR/combined_protein.tsv",
-                   sep = "\t", header = TRUE)
+                   sep = "\t", header = TRUE, quote = "")
 
 # Subset MNV proteins
 MNV <- dplyr::filter(data, Organism == "Norovirus (isolate Mouse/")
 
-# Subset and log2 transform quantitative data
+# Subset and log2 transform quantitative data "sample.Intensity" columns
 quant_columns <- colnames(MNV[,210:274])
 quant_columns <- sort(quant_columns)
 
@@ -138,40 +140,46 @@ p
 ggsave(plot = p, dpi = 300, filename = "ORF1_cov.png")
 
 
-# Figures for BSRT7 transfection
+# Figure 3
 # Load Fragpipe output files
-data2 <- read.table("./Deposit/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR_BSRT7/combined_protein.tsv",
-                   sep = "\t", header = TRUE)
+data2 <- read.table("./Deposit/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR_BSRT7complete_fiinal/combined_protein.tsv",
+                   sep = "\t", header = TRUE, quote = "")
+
+# Subset and normalise to total sum
+quant <- data2[,81:102]
+
+target_sum <- mean(colSums(quant))
+quant_norm <- sweep(quant, 2, colSums(quant) / target_sum, FUN = "/")
+
+# Add organism, protein description and gene to normalised data
+quant_norm <- cbind(data2[,c("Protein.ID","Description","Gene","Organism")],quant_norm)
 
 # Subset MNV proteins
-MNV2 <- dplyr::filter(data2, Organism == "Norovirus (isolate Mouse/")
-colnames(MNV2)
+MNV2 <- dplyr::filter(quant_norm, Organism == "Norovirus (isolate Mouse/")
 
-# Subset and log2 transform quantitative data
-quant_columns2 <- colnames(MNV2[,51:62])
+# log2 transform
+MNV2[,5:26][MNV2[,5:26] == 0] <- NA
+MNV2 <- dplyr::mutate(MNV2,across(where(is.numeric),log2))
 
-int2 <- MNV2[,c("Description",quant_columns2)]
-int2[,quant_columns2][int2[,quant_columns2] == 0] <- NA
-int2 <- dplyr::mutate(int2,across(where(is.numeric),log2))
-int2$Description[3] <- "Genome polyprotein (NS4)"
+# Remove rows with NA in all samples
+MNV2 <- MNV2[rowSums(is.na(MNV2[, 5:26])) != ncol(MNV2[, 5:26]), ]
 
 # Plot box-plot
-conditions2 <- gsub("_\\d+\\.Intensity","",quant_columns2)
+conditions2 <- gsub("_\\d+\\.Intensity","",colnames(MNV2[,5:26]))
 
-int_long2 <- melt(int2)
-int_long2$conditions <- gsub("_\\d+\\.Intensity","",int_long2$variable)
-
-int_long2$conditions <- factor(int_long2$conditions, levels = unique(conditions2)) #converts the conditions column to a factor and specifies the desired order of the levels
+long2 <- melt(MNV2)
+long2$conditions <- gsub("_\\d+\\.Intensity","",long2$variable)
+long2$conditions <- factor(long2$conditions, levels = unique(conditions2)) #converts the conditions column to a factor and specifies the desired order of the levels
 
 # plot polyprotein first
-int_long2_pp <- int_long2 %>% filter(grepl("Genome polyprotein", Description, fixed = TRUE))
-int_long2_pp <- int_long2_pp %>% filter(!grepl("NS4", Description, fixed = TRUE))
+long2_pp <- long2 %>% filter(grepl("Genome polyprotein", Description, fixed = TRUE))
+long2_pp <- long2_pp %>% filter(!grepl("(", Description, fixed = TRUE))
 
-Fig3B <- ggplot(int_long2_pp, aes(x = conditions2, y = value, fill = Description)) +
+Fig3B <- ggplot(long2_pp, aes(x = conditions2, y = value, fill = Description)) +
   geom_boxplot(outlier.size = 0.4, linewidth = 0.2) +
   scale_fill_manual(values = rep(c("#666699"),13)) +
   scale_y_continuous(limits = c(15,27)) +
-  scale_x_discrete(labels = c(gsub("BS_|CD_", "",unique(int_long2_pp$conditions)))) +
+  scale_x_discrete(labels = c(gsub("BS_|CD_|BSCD300_", "",unique(long2_pp$conditions)))) +
   geom_jitter(color="black", size=0.4, alpha=0.9, width = 0) +
   theme_classic(base_family = "Arial") +
   theme(axis.text.x = element_text(angle = 0, hjust = NULL, size = 6.5, color = "black"),
@@ -188,11 +196,17 @@ ggsave(plot = Fig3B, width = 3, height = 2.5, dpi = 300, filename = "FIG3B.png")
 
 # coverage map Figure 3
 # Load Fragpipe combined_peptide output for MNV protein coverage map
-peptide2 <- read.table("./Deposit/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR_BSRT7/combined_peptide.tsv",
+peptide2 <- read.table("./Deposit/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR_BSRT7complete_fiinal/combined_peptide.tsv",
                       sep = "\t", header = TRUE, fill = TRUE, quote = "")
 
 # Subset MNV peptides
 peptide2 <- dplyr::filter(peptide2, str_detect(peptide2$Entry.Name, "POLG") == TRUE)
+
+#get UniProt features for MNV polyprotein identified
+c("Q80J95") %>%
+  drawProteins::get_features() %>%
+  drawProteins::feature_to_dataframe() ->
+  MNV_UniProt_data
 
 #create canvas with protein length
 p2 <- ggplot() +
@@ -229,7 +243,7 @@ p2 <- p2 + geom_label(data = POLG_ns[POLG_ns$type == "CHAIN",],
                     fontface = "bold",
                     size = 3.8,
                     fill = NA,
-                    label.size = NA)
+                    linewidth = NA)
 
 
 
