@@ -9,6 +9,7 @@ library("viridis")
 library("stringr")
 library("drawProteins")
 
+
 # Set working directory
 setwd("Y:/Leandro/2024/Projects/18_T7capping")
 
@@ -52,15 +53,12 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
         legend.position="none",
         axis.text.y = element_text(color = "black", size = 6),
         axis.line = element_line(linewidth =0.2)) +
-  labs(y = expression("Viral polyprotein abundance (Log"[2] ~ "Intensity)"))  +
+  labs(y = expression("Log"[2]~"protein intensity"))  +
   xlab("")
 
 Fig2B
 
 ggsave(plot = Fig2B, width = 3, height = 2.5, dpi = 300, filename = "FIG2B.png")
-
-# Load packages for protein coverage map
-library("stringr")
 
 # Load Fragpipe combined_peptide output for MNV protein coverage map
 peptide <- read.table("./01_timsTOF-HT_transfection_1/Fragpipe/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR/combined_peptide.tsv",
@@ -187,7 +185,7 @@ Fig3B <- ggplot(long2_pp, aes(x = conditions2, y = value, fill = Description)) +
         legend.position="none",
         axis.text.y = element_text(color = "black", size = 6),
         axis.line = element_line(linewidth =0.2)) +
-  labs(y = expression("Viral polyprotein abundance (Log"[2] ~ "Intensity)"))  +
+  labs(y = expression("Log"[2] ~ "protein intensity)"))  +
   xlab("")
 
 Fig3B
@@ -258,6 +256,8 @@ p2 <- p2 + theme_bw() +    # white background and text size
   geom_rect(fill = NA) +
   theme(panel.border = element_blank(),axis.line.x = element_line(linetype = "solid", colour = "black")) +
   scale_x_continuous(breaks = seq(0,max(MNV_UniProt_data$end),150),limits = c(0,max(MNV_UniProt_data$end)))
+
+p2 
 
 ggsave(plot = p2, dpi = 300, filename = "ORF1_cov2.png")
 
