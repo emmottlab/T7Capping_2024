@@ -58,7 +58,7 @@ Fig2B <- ggplot(int_long, aes(x = conditions, y = value, fill = conditions)) +
 
 Fig2B
 
-ggsave(plot = Fig2B, width = 3, height = 2.5, dpi = 300, filename = "FIG2B.png")
+ggsave(plot = Fig2B, width = 3, height = 2.5, dpi = 300, filename = "FIG2B.svg")
 
 # Load Fragpipe combined_peptide output for MNV protein coverage map
 peptide <- read.table("./01_timsTOF-HT_transfection_1/Fragpipe/LN_LFQ-MBR_trypsinKRnotP_1MC_skyline_noMBR/combined_peptide.tsv",
@@ -135,7 +135,7 @@ p <- p + theme_bw() +    # white background and text size
 
 p
 
-ggsave(plot = p, dpi = 300, filename = "ORF1_cov.png")
+ggsave(plot = p, dpi = 300, filename = "ORF1_cov.svg")
 
 
 # Figure 3
@@ -190,7 +190,7 @@ Fig3B <- ggplot(long2_pp, aes(x = conditions2, y = value, fill = Description)) +
 
 Fig3B
 
-ggsave(plot = Fig3B, width = 3, height = 2.5, dpi = 300, filename = "FIG3B.png")
+ggsave(plot = Fig3B, width = 3, height = 2.5, dpi = 300, filename = "FIG3B.svg")
 
 # coverage map Figure 3
 # Load Fragpipe combined_peptide output for MNV protein coverage map
@@ -259,7 +259,7 @@ p2 <- p2 + theme_bw() +    # white background and text size
 
 p2 
 
-ggsave(plot = p2, dpi = 300, filename = "ORF1_cov2.png")
+ggsave(plot = p2, dpi = 300, filename = "ORF1_cov2.svg")
 
 
 # Save environment
