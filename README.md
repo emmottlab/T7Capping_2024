@@ -3,7 +3,7 @@ Git repository for preprint Buchanan et al 2026, that describes how the inclusio
 
 
 # authors
-Frazer J.T. Buchanan, Markella Loi,  Charlotte Chim,  ShuXian Zhou,  Rebekah Penrice-Randal,  Leandro Xavier Neves,  Maximillian Erdmann,  Edward Emmott
+Frazer J.T. Buchanan, Markella Loi,  Charlotte Chim,  ShuXian Zhou,  Rebekah Penrice-Randal,  Leandro Xavier Neves,  Maximilian Erdmann,  Edward Emmott
 
 # contributions
 
