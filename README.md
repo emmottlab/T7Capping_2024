@@ -5,9 +5,9 @@ Git repository for preprint Buchanan et al 2026, that describes how the inclusio
 # authors
 Frazer J.T. Buchanan, Markella Loi,  Charlotte Chim,  ShuXian Zhou,  Rebekah Penrice-Randal,  Leandro Xavier Neves,  Maximilian Erdmann,  Edward Emmott
 
-# contributions
 
 # description of code
+Analysis scripts associated with plotting protein and RNA expression for Buchanan et al. 2026.
 
 # location of sequencing and proteomics data
 The mass spectrometry data has been submitted to ProteomeXchange Consortium (ProteomeCentral Data and Tools) via the PRIDE partner repository with the dataset identifier PXD074707. All manuscript figures are available through Figshare (https://doi.org/10.6084/m9.figshare.31812781).
